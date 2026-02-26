@@ -22,8 +22,7 @@
 
 Cookie locations (checked in order):
 1. `$MORPHEUS_COOKIE_PATH`
-2. `bin/morpheus/.cookie`
-3. `~/morpheus/.cookie`
+2. `~/.morpheus/.cookie`
 
 ## Ports
 

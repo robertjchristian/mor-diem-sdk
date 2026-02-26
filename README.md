@@ -35,7 +35,7 @@ We are **NOT** a consumer node. We provide tools that **talk to** a consumer nod
 |-----------|--------------|-----------|
 | **SDK** (`src/`) | TypeScript client for staking, models, inference | ~50KB |
 | **Proxy** (`src/proxy/morpheus-proxy.mjs`) | Translates OpenAI API → Morpheus protocol | Single file, ~500 lines |
-| **CLI** (`bin/`) | Command-line tools for setup and chat | Development only |
+| **CLI** (`src/cli/`) | Command-line tools for setup and chat | Development only |
 
 ### How It Works
 
@@ -291,8 +291,8 @@ new MorDiemSDK({ privateKey: '0x...' })
 ## Running Locally
 
 ```bash
-# 1. Start router (if running locally)
-cd bin/morpheus && ./morpheus-router  # Port 9081
+# 1. Start Morpheus Node (download from Morpheus releases)
+./morpheus-router  # Port 9081
 
 # 2. Start proxy
 bun run proxy  # Port 8083
@@ -300,7 +300,7 @@ bun run proxy  # Port 8083
 # 3. Your app connects to http://localhost:8083
 ```
 
-**Router binary:** Download from [Morpheus releases](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases).
+**Morpheus Node:** Download `proxy-router` from [Morpheus releases](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases).
 
 **Or skip local router:** Set `MORPHEUS_ROUTER_URL` to point to a remote one.
 

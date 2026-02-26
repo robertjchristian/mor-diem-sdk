@@ -167,20 +167,18 @@ Your App → SDK → morpheus-proxy (:8083) → morpheus-router (:9081) → AI P
 | `src/proxy/morpheus-proxy.mjs` | OpenAI-compatible proxy layer |
 | `src/client/index.ts` | MorpheusClient - makes API calls to proxy |
 | `src/index.ts` | MorDiemSDK - main entry point |
-| `bin/morpheus/` | Router binary and config |
-| `bin/morpheus/.cookie` | Auth credentials for proxy→router |
+| `src/cli/mor-diem.ts` | CLI entry point |
 
 ### Authentication Flow
 
-1. Router binary creates `.cookie` file on first run
-2. Proxy reads `.cookie` to authenticate with router
+1. Morpheus Node creates `.cookie` file on first run
+2. Proxy reads `.cookie` to authenticate with node
 3. Proxy uses Basic auth: `Authorization: Basic <base64(cookie)>`
 4. If `.cookie` missing/invalid → "invalid basic auth provided"
 
 **Cookie file locations (checked in order):**
 1. `$MORPHEUS_COOKIE_PATH` (env override)
-2. `bin/morpheus/.cookie` (local project)
-3. `~/morpheus/.cookie` (user home)
+2. `~/.morpheus/.cookie` (user home)
 
 ### Error Handling Philosophy
 

@@ -57,12 +57,12 @@ Env vars override the config file.
 
 ## Router Options
 
-### Local Router (Full Control)
+### Local Morpheus Node (Full Control)
 
-Download the [Lumerin router binary](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases), run it locally.
+Download the [Morpheus Node](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases), run it locally.
 
 ```bash
-cd bin/morpheus && ./morpheus-router  # Creates .cookie, manages your wallet
+./morpheus-router  # Creates .cookie, manages your wallet
 ```
 
 ### Remote Router

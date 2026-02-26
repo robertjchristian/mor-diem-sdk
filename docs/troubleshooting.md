@@ -39,13 +39,12 @@ invalid basic auth provided
 Cause: Proxy can't read `.cookie` file.
 
 Fix:
-1. Start router: `cd bin/morpheus && ./morpheus-router &`
-2. Verify cookie exists: `cat bin/morpheus/.cookie`
+1. Start Morpheus Node: `./morpheus-router &`
+2. Verify cookie exists: `cat ~/.morpheus/.cookie`
 
 Cookie search order:
-1. `bin/morpheus/.cookie`
-2. `~/morpheus/.cookie`
-3. `$MORPHEUS_COOKIE_PATH`
+1. `$MORPHEUS_COOKIE_PATH` (env override)
+2. `~/.morpheus/.cookie`
 
 ---
 
@@ -55,8 +54,8 @@ Cause: Services not running.
 
 Fix:
 ```bash
-cd bin/morpheus && ./morpheus-router &  # Port 9081
-bun run proxy &                          # Port 8083
+./morpheus-router &  # Port 9081
+bun run proxy &      # Port 8083
 ```
 
 Verify:

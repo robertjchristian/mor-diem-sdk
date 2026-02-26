@@ -6,17 +6,16 @@
 	"main": "release/index.js",
 	"types": "release/src/index.d.ts",
 	"bin": {
-		"mor-diem": "./bin/mor-diem.ts"
+		"mor-diem": "./release/cli/mor-diem.js"
 	},
 	"scripts": {
 		"dev": "bun run src/index.ts",
 		"build": "bun build src/index.ts --outdir dist --target node",
 		"release": "bun run build && tsc -p tsconfig.build.json && rm -rf release && cp -r dist release",
-		"cli": "source .env 2>/dev/null; bun run bin/mor-diem.ts",
-		"chat": "source .env 2>/dev/null; bun run bin/mor-diem.ts chat",
-		"setup": "source .env 2>/dev/null; bun run bin/setup-router.ts",
+		"cli": "source .env 2>/dev/null; bun run src/cli/mor-diem.ts",
+		"chat": "source .env 2>/dev/null; bun run src/cli/mor-diem.ts chat",
+		"setup": "source .env 2>/dev/null; bun run src/cli/setup-router.ts",
 		"proxy": "source .env 2>/dev/null; bun run src/proxy/morpheus-proxy.mjs",
-		"start": "source .env 2>/dev/null; ./bin/start-p2p.sh",
 		"test": "bun test",
 		"test:models": "source .env 2>/dev/null; bun run scripts/test-models.ts",
 		"model-status": "cd docs/model-status && python3 -m http.server 8000",

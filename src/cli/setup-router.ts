@@ -6,7 +6,7 @@
  */
 
 import { readFileSync, writeFileSync } from 'node:fs'
-import { deriveWallet } from '../src/index.js'
+import { deriveWallet } from '../index.js'
 
 const envPath = './bin/morpheus/.env'
 

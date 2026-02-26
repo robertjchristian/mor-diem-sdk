@@ -26,8 +26,8 @@ import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import * as readline from 'node:readline'
-import { startInteractiveChat } from '../src/cli/chat.js'
-import { MorDiemSDK, deriveWallet, generateNewMnemonic, isValidMnemonic } from '../src/index.js'
+import { MorDiemSDK, deriveWallet, generateNewMnemonic, isValidMnemonic } from '../index.js'
+import { startInteractiveChat } from './chat.js'
 
 // =============================================================================
 // Config File Management
