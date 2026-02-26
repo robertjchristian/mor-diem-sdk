@@ -1,69 +1,122 @@
 # Architecture
 
-## Two Approaches
+## Why Two Components?
 
-| | MOR DIEM SDK | MOR API (api.mor.org) |
-|-|--------------|----------------------|
-| What | Your consumer node | Their consumer node |
-| Auth | Wallet + MOR stake | API key |
-| Economics | Deposit returns after 7 days | Payment consumed |
-| Privacy | Maximum | They see requests |
-| Setup | Run proxy + router | HTTP calls only |
-| Cost | Near-zero (stake refunds) | Per-use fees |
+You need TWO things running to use mor-diem-sdk:
 
-## Stack (MOR DIEM SDK)
+| Component | What It Is | Why You Need It |
+|-----------|------------|-----------------|
+| **morpheus-router** | Official Morpheus binary | Blockchain ops, P2P network, provider connections |
+| **morpheus-proxy** | Our OpenAI wrapper | Translates OpenAI API → Router's weird API |
 
-```
-Your App
-    ↓ OpenAI API
-MOR DIEM Proxy (:8083)
-    ↓ Morpheus Protocol
-Lumerin Router (:9081)
-    ↓ Base Mainnet
-Morpheus P2P Network
-```
+**You cannot embed this in your app.** Both must run as separate processes.
 
-## Components
-
-| Component | Port | Role |
-|-----------|------|------|
-| Proxy | 8083 | OpenAI API, session mgmt |
-| Router | 9081 | Blockchain ops, P2P |
-
-## Economic Model
+## The Stack
 
 ```
-Traditional:  Pay $$ -> Use -> $$ gone
-MOR DIEM:     Deposit MOR -> Use -> MOR returned (7 days)
+Your App (any language)
+    ↓ Standard OpenAI API (POST /v1/chat/completions)
+morpheus-proxy (:8083) ← Our code, OpenAI-compatible
+    ↓ Custom Morpheus Protocol (session headers, model IDs, Basic auth)
+morpheus-router (:9081) ← Official binary from Morpheus
+    ↓ Base blockchain + P2P
+AI Providers
 ```
 
-Stake = refundable deposit, not payment.
+## Why Can't I Just Use the Router Directly?
+
+The router doesn't speak OpenAI API. It has a custom protocol:
+- Requires `session_id` and `model_id` headers
+- Uses Basic auth from a `.cookie` file
+- Model names are blockchain hashes (e.g., `0xbb9e920d94ad3fa2...`)
+- Sessions must be opened/renewed manually
+
+Our proxy handles all of this, giving you a clean OpenAI-compatible API.
+
+## What the Proxy Does
+
+| Feature | Without Proxy | With Proxy |
+|---------|---------------|------------|
+| API format | Custom Morpheus headers | Standard OpenAI |
+| Model names | Hex hashes | Human names (`kimi-k2.5`) |
+| Sessions | Manual open/renew | Auto on first request |
+| Auth | Read .cookie, Base64 encode | Just works |
+| Session expiry | Track manually | Auto-renews 1hr before |
+
+## Deployment Options
+
+### Development (Local)
+
+```bash
+# Terminal 1: Start router
+cd bin/morpheus && ./morpheus-router
+
+# Terminal 2: Start proxy
+bun run proxy
+
+# Terminal 3: Your app
+curl http://localhost:8083/v1/chat/completions ...
+```
+
+### Production (Docker)
+
+You need to containerize both:
+
+```dockerfile
+# Option A: Two containers
+- morpheus-router container (port 9081)
+- morpheus-proxy container (port 8083) ← expose this
+
+# Option B: Single container with both processes
+- supervisor/s6 managing both processes
+```
+
+**Expose only the proxy (8083).** The router (9081) stays internal.
+
+### Hosted Alternative
+
+Don't want to run infrastructure? Use **[api.mor.org](https://api.mor.org)**:
+- They run the router + proxy
+- You just make HTTP calls
+- Pay per use instead of staking
+
+## Data Flow
+
+```
+1. Your app calls: POST /v1/chat/completions { model: "kimi-k2.5", messages: [...] }
+2. Proxy looks up model ID: "kimi-k2.5" → "0xbb9e920d94ad3fa2..."
+3. Proxy checks for active session, opens one if needed (stakes MOR)
+4. Proxy forwards to router with: session_id, model_id, Basic auth headers
+5. Router connects to provider via P2P
+6. Response flows back through proxy to your app
+```
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `src/proxy/morpheus-proxy.mjs` | OpenAI proxy |
-| `src/wallet/` | Wallet management |
-| `bin/morpheus/` | Router binary |
+| `src/proxy/morpheus-proxy.mjs` | Our OpenAI proxy |
+| `bin/morpheus/morpheus-router` | Official router binary (download separately) |
+| `bin/morpheus/.cookie` | Router auth credentials |
+| `bin/morpheus/data/` | Router's blockchain state |
 
-## Config
+## Ports
 
-**MOR DIEM SDK (recommended):**
-```bash
-MOR_MNEMONIC="your seed phrase"
-# Run: router on :9081, proxy on :8083
-```
+| Port | Component | Expose? |
+|------|-----------|---------|
+| 8083 | morpheus-proxy | Yes - your apps connect here |
+| 9081 | morpheus-router | No - internal only |
 
-**MOR API (alternative):**
-```bash
-MOR_API_KEY=your-api-key
-MORPHEUS_BASE_URL=https://api.mor.org/api/v1
-```
+## Can I...
 
-## Capacity
+**Run just the SDK without proxy/router?**
+No. The SDK is a client library. It needs the proxy running to talk to.
 
-```
-1 stake (~2 MOR) = 1 session = 1 lane = rate-limited RPM
-N stakes = N lanes = N× capacity
-```
+**Embed this in a serverless function?**
+No. You need persistent processes (router + proxy).
+
+**Use this from a browser?**
+No. The proxy runs server-side. Your browser app would call your backend, which calls the proxy.
+
+**Scale horizontally?**
+Multiple proxy instances can share one router. Or run multiple router+proxy pairs.

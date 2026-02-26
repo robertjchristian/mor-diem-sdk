@@ -89,14 +89,26 @@ console.log(response)
 
 ## Architecture
 
+**Important:** You need TWO processes running:
+
 ```
-Your App -> mor-diem-sdk proxy (:8083) -> Morpheus Router (:9081) -> AI Providers
+Your App (OpenAI API)
+    ↓
+morpheus-proxy (:8083) ← Our code, translates to Morpheus protocol
+    ↓
+morpheus-router (:9081) ← Official binary, handles blockchain/P2P
+    ↓
+AI Providers
 ```
 
-| Component | Port | Role |
-|-----------|------|------|
-| mor-diem-sdk proxy | 8083 | OpenAI-compatible API, session management |
-| Morpheus Router | 9081 | Blockchain operations, provider routing |
+| Component | Port | What It Does |
+|-----------|------|--------------|
+| morpheus-proxy | 8083 | OpenAI-compatible API wrapper |
+| morpheus-router | 9081 | Blockchain ops, provider connections |
+
+**This is not embeddable.** Both processes must run. For deployment, containerize both (see [architecture.md](docs/architecture.md)).
+
+**Don't want to run infrastructure?** Use [api.mor.org](https://api.mor.org) instead - they host it for you.
 
 ## Available Models
 
@@ -189,15 +201,21 @@ new MorDiemSDK({ privateKey: '0x...' })
 
 ## Running the Proxy Stack
 
-For P2P mode, you need the local proxy stack running:
+Both processes must be running:
 
 ```bash
-# Start Morpheus router (connects to Base blockchain)
-cd bin/morpheus && ./morpheus-router &  # Port 9081
+# Terminal 1: Start router (download binary first)
+cd bin/morpheus && ./morpheus-router  # Port 9081
 
-# Start MOR DIEM proxy (OpenAI-compatible layer)
-bun run src/proxy/morpheus-proxy.mjs &  # Port 8083
+# Terminal 2: Start proxy
+bun run proxy  # Port 8083
+
+# Terminal 3: Your app connects to http://localhost:8083
 ```
+
+**For production:** Containerize both processes. See [architecture.md](docs/architecture.md) for Docker guidance.
+
+**Router binary:** Download from [Morpheus releases](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases). Place in `bin/morpheus/`.
 
 ## Security
 
