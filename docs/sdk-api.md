@@ -9,16 +9,28 @@ Two ways to configure a wallet:
 | `mnemonic` | Dev/testing - derive N wallets from one seed |
 | `privateKey` | Production - single wallet, direct control |
 
-**Mnemonic (BIP39):** One seed phrase, unlimited derived accounts. Change `walletIndex` to switch wallets. Good for development, testing multiple accounts, or managing a fleet of wallets from one seed.
+### Why Mnemonic?
 
-**Private Key:** Single wallet, no derivation. Simpler if you only need one account.
+**Benefit:** One seed phrase generates unlimited wallets. Increment `walletIndex` to get wallet 0, 1, 2, etc. Useful when:
+- Developing and testing with multiple accounts
+- Running integration tests against fresh wallets
+- Managing a fleet of wallets from one backup
+
+**Warning:** Mnemonic-based wallets are primarily for development. In production:
+- Use a single private key for simplicity
+- Or use proper key management (HSM, vault, etc.)
+- Never store mnemonics in code or environment variables on production servers
+
+### Private Key
+
+Single wallet, no derivation. Use this in production when you need one dedicated wallet.
 
 ```typescript
-// Mnemonic - derive multiple wallets
+// Mnemonic - derive multiple wallets (dev/testing)
 const sdk = new MorDiemSDK({ mnemonic: '...', walletIndex: 0 })  // wallet 0
 const sdk2 = new MorDiemSDK({ mnemonic: '...', walletIndex: 1 }) // wallet 1
 
-// Private key - single wallet
+// Private key - single wallet (production)
 const sdk = new MorDiemSDK({ privateKey: '0x...' })
 ```
 

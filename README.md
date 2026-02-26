@@ -174,13 +174,13 @@ new MorDiemSDK({ privateKey: '0x...' })
 
 ## Documentation
 
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and component overview
-- **[Staking Guide](docs/STAKING.md)** - How MOR deposits work, economics, best practices
-- **[SDK API Reference](docs/SDK-API.md)** - Full TypeScript API documentation
-- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Lessons Learned](docs/LESSONS-LEARNED.md)** - Integration insights and gotchas
-- **[Pricing Comparison](docs/PRICING-COMPARISON.md)** - Morpheus vs traditional APIs
-- **[Builder Guide](docs/MorpheusAI-Builder-Guide.md)** - Comprehensive guide for operators
+- **[Architecture](docs/architecture.md)** - System design and component overview
+- **[Staking Guide](docs/staking.md)** - How MOR deposits work, economics, best practices
+- **[SDK API Reference](docs/sdk-api.md)** - Full TypeScript API documentation
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
+- **[Lessons Learned](docs/lessons-learned.md)** - Integration insights and gotchas
+- **[Pricing Comparison](docs/pricing-comparison.md)** - Morpheus vs traditional APIs
+- **[Builder Guide](docs/builder-guide.md)** - Comprehensive guide for operators
 
 ## Running the Proxy Stack
 
