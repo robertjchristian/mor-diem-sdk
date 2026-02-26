@@ -3,26 +3,36 @@
 <h2 align="center">mor-diem-sdk</h2>
 
 <p align="center">
-  <strong>Morpheus consumer node with SDK and CLI</strong>
+  <strong>Stake MOR. Access AI. Embed anywhere.</strong>
 </p>
 
 <p align="center">
   <img src="assets/mor-diem.png" alt="mor-diem-sdk" width="600">
 </p>
 
+## What This Does
 
+1. **Stake MOR tokens** - Via CLI or programmatically in your app
+2. **See available models** - 37+ AI models with live provider status
+3. **Access AI** - OpenAI-compatible API, works with any client
 
+Your MOR stake is a **refundable deposit** (not payment). Tokens lock for 7 days, then return to you.
 
-## Morpheus Consumer Node
+## What's a Consumer Node?
 
-This is a **Morpheus consumer node** - the same infrastructure that powers [api.mor.org](https://api.mor.org).
+Morpheus has two sides:
+- **Providers** run AI models, earn MOR
+- **Consumers** stake MOR, get inference
 
-- **[api.mor.org](https://api.mor.org)** - A hosted gateway in front of a consumer node. Get an API key, pay USD.
-- **mor-diem-sdk** - Run your own consumer node. Stake MOR tokens (refundable), get unlimited inference on one stream for a given model for the period agreed upon at time of stake.
+This SDK is **consumer node infrastructure** - the same stack that powers [api.mor.org](https://api.mor.org), but you run it yourself.
 
-Use mor-diem-sdk embedded in any app, or put your own gateway in front of it.
+| Option | What You Run | Cost |
+|--------|--------------|------|
+| **[api.mor.org](https://api.mor.org)** | Nothing | Pay USD |
+| **This SDK** | Proxy (embeddable) | Stake MOR (refundable) |
+| **Full P2P** | Proxy + Router | Stake MOR (refundable) |
 
-**Key difference:** Your MOR stake is a **refundable deposit**, not a payment. Tokens lock for 7 days, then return to you.
+**Most users:** Run the proxy, stake MOR, access AI. The proxy is just Node.js code - embed it in your app or run standalone.
 
 ## Installation
 
@@ -90,22 +100,32 @@ console.log(response)
 ## Architecture
 
 ```
-Your App → Our Proxy (:8083) → Lumerin Router (:9081) → AI Providers
+Your App → Proxy (embeddable) → Router → AI Providers
+              ↓
+         OpenAI-compatible API
 ```
 
-| Component | What It Does |
-|-----------|--------------|
-| **Our proxy** | Translates OpenAI API → Morpheus protocol |
-| **Lumerin router** | Official Morpheus node (blockchain, P2P) |
+| Component | What It Does | You Run It? |
+|-----------|--------------|-------------|
+| **Proxy** | OpenAI API → Morpheus protocol | Yes (embed or standalone) |
+| **Router** | Blockchain ops, provider routing | Optional (can use remote) |
 
-**Proxy is embeddable** - it's just Node.js code. Run separately or in your app's process.
+### Embedding the Proxy
 
-**Router options:**
-- Run locally (download [Lumerin binary](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases))
-- Point to a remote router (`MORPHEUS_ROUTER_URL`)
-- Skip both - use [api.mor.org](https://api.mor.org) (they run everything)
+The proxy is just `src/proxy/morpheus-proxy.mjs` - pure Node.js. Options:
 
-See [architecture.md](docs/architecture.md) for details.
+1. **Standalone:** `bun run proxy` (port 8083)
+2. **Embedded:** Import and run in your app's process
+3. **Remote:** Point to someone else's proxy
+
+### Router Options
+
+| Option | Setup | Use Case |
+|--------|-------|----------|
+| **Remote router** | Set `MORPHEUS_ROUTER_URL` | Simplest - someone else runs it |
+| **Local router** | Download [Lumerin binary](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases) | Full control, true P2P |
+
+See [architecture.md](docs/architecture.md) for deep dive.
 
 ## Model Status
 
