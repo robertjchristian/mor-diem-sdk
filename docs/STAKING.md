@@ -9,17 +9,30 @@ Traditional:  Pay $$ -> Use -> $$ gone
 MOR DIEM:     Deposit MOR -> Use -> MOR returned
 ```
 
+## Pricing
+
+**Important:** Stake amounts are set by providers on-chain, not by this SDK.
+
+| Fact | Value |
+|------|-------|
+| Current typical | ~2 MOR per session |
+| Who sets price | Providers (on-chain bids) |
+| Fixed? | No - subject to change |
+| Per-model? | Yes - different providers, different prices |
+
+The SDK reads provider bids from the blockchain and stakes what's required. If network pricing changes, your stake requirement changes.
+
 ## Session Model
 
 | Fact | Value |
 |------|-------|
 | 1 model | 1 session |
-| 1 session | ~2 MOR deposit |
+| 1 session | ~2 MOR deposit (current typical) |
 | Duration | 7 days |
 | Usage | Unlimited |
 | After expiry | MOR returns |
 
-5 models = 5 sessions = ~10 MOR staked.
+5 models = 5 sessions = ~10 MOR staked (at current pricing).
 
 ## Flow
 
@@ -71,4 +84,7 @@ A: No. Locked for 7 days.
 A: SDK retries automatically. Check balance and approval if persists.
 
 **Q: Fixed deposit amount?**
-A: No. ~2 MOR typical, varies by provider.
+A: No. Providers set their own prices via on-chain bids. ~2 MOR is typical as of Feb 2026, but this can change. The SDK stakes whatever the provider requires.
+
+**Q: How do I know the price before staking?**
+A: The SDK auto-stakes on first inference. Check provider bids on-chain or watch your wallet balance.

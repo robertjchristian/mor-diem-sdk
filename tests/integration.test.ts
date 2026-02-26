@@ -23,6 +23,8 @@ import { MorDiemSDK } from '../src/index'
 const TEST_MODELS = ['kimi-k2.5', 'glm-4.7-flash', 'llama-3.3-70b']
 
 // Expected max stake per model (in MOR)
+// NOTE: Providers set prices via on-chain bids. ~2 MOR is typical as of Feb 2026.
+// Update this if network pricing changes.
 const EXPECTED_MAX_STAKE_PER_MODEL = 2
 
 // Skip integration tests if no mnemonic configured

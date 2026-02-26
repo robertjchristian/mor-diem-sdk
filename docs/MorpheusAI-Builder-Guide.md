@@ -6,7 +6,7 @@
 |-----------------|----------|
 | Pay per token | Deposit MOR, get it back |
 | API key | Session (time-based rental) |
-| Unlimited concurrency | 1 stream per session |
+| Rate-limited concurrency | 1 stream per session |
 | Pay more to scale | More sessions = more MOR |
 
 ## Two Paths
@@ -28,7 +28,7 @@
 Stake MOR -> Session opens -> Use for 7 days -> MOR returns
 ```
 
-1 session = 1 model = 1 concurrent stream = ~2 MOR deposit.
+1 session = 1 model = 1 concurrent stream = ~2 MOR deposit (current typical).
 
 ## Terms
 
@@ -94,10 +94,12 @@ const response = await client.createChatCompletion({
 
 | Item | Value |
 |------|-------|
-| Stake/session | ~2 MOR |
+| Stake/session | ~2 MOR (current typical, set by providers) |
 | Duration | 7 days |
 | Usage | Unlimited |
 | Return | Full refund |
+
+Note: Stake amounts are set by providers via on-chain bids. ~2 MOR is typical as of Feb 2026 but can change per model/provider.
 
 ## Contracts (Base)
 
