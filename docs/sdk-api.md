@@ -56,15 +56,39 @@ sdk.address   // 0x...
 sdk.mode      // 'p2p'
 ```
 
-### Wallet
+### Balances
 
 ```typescript
-// Balances
 const balances = await sdk.getBalances()
-// { eth, ethFormatted, mor, morFormatted, usdc, usdcFormatted, morAllowance, morAllowanceFormatted, isUnlimitedAllowance }
 
-// Approve (never use MAX_UINT256)
-await sdk.approveMor(BigInt(10000e18))
+console.log(`ETH:  ${balances.ethFormatted}`)   // Gas for transactions
+console.log(`MOR:  ${balances.morFormatted}`)   // Available to stake
+console.log(`USDC: ${balances.usdcFormatted}`)  // Can swap for MOR
+
+// Check if MOR is approved for staking
+console.log(`Approved: ${balances.morAllowanceFormatted}`)
+console.log(`Unlimited: ${balances.isUnlimitedAllowance}`)
+```
+
+**Balances object:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `eth` / `ethFormatted` | bigint / string | ETH for gas |
+| `mor` / `morFormatted` | bigint / string | MOR available to stake |
+| `usdc` / `usdcFormatted` | bigint / string | USDC (can swap for MOR) |
+| `morAllowance` / `morAllowanceFormatted` | bigint / string | MOR approved for Diamond contract |
+| `isUnlimitedAllowance` | boolean | Whether approval is unlimited |
+
+### Approval
+
+Before staking, approve MOR for the Diamond contract:
+
+```typescript
+// Approve specific amount (recommended)
+await sdk.approveMor(BigInt(100e18))  // 100 MOR
+
+// Never use MAX_UINT256 - causes overflow errors
 ```
 
 ### Inference

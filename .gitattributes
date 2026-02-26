@@ -1,0 +1,2 @@
+# Tell GitHub to ignore release folder for language stats
+release/** linguist-generated=true

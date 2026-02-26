@@ -169,18 +169,23 @@ new MorDiemSDK({ privateKey: '0x...' })
 | `MOR_MNEMONIC` | BIP39 seed phrase |
 | `MOR_PRIVATE_KEY` | Single wallet private key (alternative to mnemonic) |
 | `MOR_WALLET_INDEX` | Derivation index for mnemonic (default: 0) |
-| `MOR_API_KEY` | API key (gateway mode) |
+| `MOR_RPC_URL` | Base RPC URL (default: public RPC) |
 | `MOR_BASE_URL` | Custom proxy URL |
 
 ## Documentation
 
-- **[Architecture](docs/architecture.md)** - System design and component overview
-- **[Staking Guide](docs/staking.md)** - How MOR deposits work, economics, best practices
-- **[SDK API Reference](docs/sdk-api.md)** - Full TypeScript API documentation
-- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
-- **[Lessons Learned](docs/lessons-learned.md)** - Integration insights and gotchas
-- **[Pricing Comparison](docs/pricing-comparison.md)** - Morpheus vs traditional APIs
-- **[Builder Guide](docs/builder-guide.md)** - Comprehensive guide for operators
+**Getting Started:**
+- [Staking Guide](docs/staking.md) - How deposits work, pricing, what to expect
+- [Troubleshooting](docs/troubleshooting.md) - Common issues and fixes
+
+**Reference:**
+- [SDK API](docs/sdk-api.md) - Full TypeScript API, balances, error handling
+- [Architecture](docs/architecture.md) - System components and data flow
+
+**Deep Dives:**
+- [Builder Guide](docs/builder-guide.md) - Running your own consumer node
+- [Pricing Comparison](docs/pricing-comparison.md) - Morpheus vs traditional APIs
+- [Lessons Learned](docs/lessons-learned.md) - Integration insights
 
 ## Running the Proxy Stack
 
