@@ -1,5 +1,27 @@
 # SDK API Reference
 
+## Wallet Options
+
+Two ways to configure a wallet:
+
+| Option | Use Case |
+|--------|----------|
+| `mnemonic` | Dev/testing - derive N wallets from one seed |
+| `privateKey` | Production - single wallet, direct control |
+
+**Mnemonic (BIP39):** One seed phrase, unlimited derived accounts. Change `walletIndex` to switch wallets. Good for development, testing multiple accounts, or managing a fleet of wallets from one seed.
+
+**Private Key:** Single wallet, no derivation. Simpler if you only need one account.
+
+```typescript
+// Mnemonic - derive multiple wallets
+const sdk = new MorDiemSDK({ mnemonic: '...', walletIndex: 0 })  // wallet 0
+const sdk2 = new MorDiemSDK({ mnemonic: '...', walletIndex: 1 }) // wallet 1
+
+// Private key - single wallet
+const sdk = new MorDiemSDK({ privateKey: '0x...' })
+```
+
 ## MorDiemSDK
 
 ```typescript

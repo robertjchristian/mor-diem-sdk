@@ -147,13 +147,29 @@ bun run cli health              # Check connectivity
 
 Config is stored in `~/.mor-diem/config` (created by setup wizard).
 
-Environment variables override the config file:
+### Wallet Options
+
+| Option | Use Case |
+|--------|----------|
+| Mnemonic | Dev/testing - derive multiple wallets from one seed |
+| Private Key | Production - single wallet, direct control |
+
+```typescript
+// Mnemonic - derive wallet 0, 1, 2... from one seed
+new MorDiemSDK({ mnemonic: '...', walletIndex: 0 })
+
+// Private key - single wallet
+new MorDiemSDK({ privateKey: '0x...' })
+```
+
+### Environment Variables
 
 | Variable | Description |
 |----------|-------------|
 | `MOR_MNEMONIC` | BIP39 seed phrase |
+| `MOR_PRIVATE_KEY` | Single wallet private key (alternative to mnemonic) |
+| `MOR_WALLET_INDEX` | Derivation index for mnemonic (default: 0) |
 | `MOR_API_KEY` | API key (gateway mode) |
-| `MOR_WALLET_INDEX` | Derivation index (default: 0) |
 | `MOR_BASE_URL` | Custom proxy URL |
 
 ## Documentation
