@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.local
+.keys.env
+
+# Reference material (not part of our codebase)
+reference/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keys
+.keys.env
+
+# Logs
+*.log
+
+# Test coverage
+coverage/
+
+# Morpheus router runtime data and credentials
+bin/morpheus/data/
+bin/morpheus/.cookie
+bin/morpheus/.env
+bin/morpheus/proxy.conf
+
+# Morpheus binaries (download separately)
+bin/morpheus/morpheus-cli
+bin/morpheus/morpheus-router
+
+# PDFs (generated from markdown)
+docs/*.pdf

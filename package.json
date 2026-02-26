@@ -1,0 +1,42 @@
+{
+	"name": "mor-diem-sdk",
+	"version": "0.1.0",
+	"description": "Morpheus consumer node with SDK and CLI",
+	"type": "module",
+	"main": "release/index.js",
+	"types": "release/src/index.d.ts",
+	"bin": {
+		"mor-diem": "./bin/mor-diem.ts"
+	},
+	"scripts": {
+		"dev": "bun run src/index.ts",
+		"build": "bun build src/index.ts --outdir dist --target node",
+		"release": "bun run build && tsc -p tsconfig.build.json && rm -rf release && cp -r dist release",
+		"cli": "source .env 2>/dev/null; bun run bin/mor-diem.ts",
+		"chat": "source .env 2>/dev/null; bun run bin/mor-diem.ts chat",
+		"setup": "source .env 2>/dev/null; bun run bin/setup-router.ts",
+		"proxy": "source .env 2>/dev/null; bun run src/proxy/morpheus-proxy.mjs",
+		"start": "source .env 2>/dev/null; ./bin/start-p2p.sh",
+		"test": "bun test",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write ."
+	},
+	"dependencies": {
+		"@scure/bip32": "^1.6.2",
+		"@scure/bip39": "^1.5.4",
+		"viem": "^2.23.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "^1.1.14",
+		"@types/node": "^25.3.1",
+		"typescript": "^5.7.2"
+	},
+	"engines": {
+		"bun": ">=1.0.0"
+	},
+	"keywords": ["morpheus", "mor", "diem", "inference", "ai", "decentralized", "blockchain", "base"],
+	"license": "UNLICENSED",
+	"author": ""
+}
