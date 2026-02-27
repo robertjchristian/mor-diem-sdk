@@ -11,9 +11,16 @@
 
 ## Why this exists
 
-You want to use [Morpheus AI](https://mor.org). To do that, you stake MOR tokens on **Base** chain for a session (7 days, fully refundable).
+Morpheus AI has a ~24,000 MOR daily budget but only 3 active providers. Why? **Because it's insanely hard to get working.**
 
-Morpheus's node requires hex model IDs, manual session management, and cookie auth. **mor-diem-sdk handles all of that** so you can just:
+We spent days figuring out:
+- Port 8082 is HTTP, port 9081 is TCP (not documented clearly)
+- Model IDs are hex strings like `0xbb9e920d4a780ed1a3c33a2d2a808a6c...`
+- Auth requires reading a `.cookie` file and doing Basic auth
+- Sessions expire after 7 days and need manual renewal
+- Stale cookies fail silently with cryptic errors
+
+**mor-diem-sdk handles all of that** so you can just:
 
 ```typescript
 const response = await sdk.complete('Hello')
@@ -194,6 +201,37 @@ Everything happens on **Base** (Coinbase L2, chain ID 8453).
 - [Staking Guide](docs/staking.md)
 - [Architecture](docs/architecture.md)
 - [Troubleshooting](docs/troubleshooting.md)
+
+## Lessons Learned (Feb 2025)
+
+Things we discovered building this SDK. Morpheus is evolving fast, so this may be outdated.
+
+**Port confusion is real:**
+- 8082 = HTTP API (what you want)
+- 9081 = TCP/P2P protocol (hitting this with HTTP fails silently)
+- The Morpheus docs aren't clear about this distinction
+
+**Cookie auth is mandatory:**
+- The Morpheus Node creates a `.cookie` file on first run
+- You must read this file and use Basic auth: `Authorization: Basic <base64(cookie)>`
+- If the cookie is stale (node restarted), requests fail with "invalid basic auth"
+- Our SDK auto-detects stale cookies and retries
+
+**Sessions are on-chain, not ephemeral:**
+- When you stake MOR for a model, it creates an on-chain session
+- Sessions last 7 days and are fully refundable
+- You don't re-stake every request - one stake = unlimited inference for 7 days
+- Sessions can be renewed before expiry
+
+**The network is real but small:**
+- As of Feb 2025: ~24,000 MOR daily budget, only 3 active providers
+- Provider availability varies - some models may timeout
+- This is early infrastructure, not production-grade yet
+
+**MOR is a deposit, not a payment:**
+- You lock ~2 MOR per model for 7 days
+- After the session ends, MOR returns to your wallet
+- ETH is needed for gas (~$0.01 per transaction on Base)
 
 ## License
 
