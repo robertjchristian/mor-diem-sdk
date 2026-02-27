@@ -24,16 +24,15 @@
 
 ## Why this exists
 
-Morpheus AI has a ~24,000 MOR daily budget but only 3 active providers. Why? **Because it's insanely hard to get working.**
+Morpheus gives you decentralized AI inference for staking MOR tokens (fully refundable). This SDK makes it simple:
 
-We spent days figuring out:
-- Port 8082 is HTTP, port 9081 is TCP (not documented clearly)
-- Model IDs are hex strings like `0xbb9e920d4a780ed1a3c33a2d2a808a6c...`
-- Auth requires reading a `.cookie` file and doing Basic auth
-- Sessions expire after 7 days and need manual renewal
-- Stale cookies fail silently with cryptic errors
+- **Human-readable model names** - use `kimi-k2.5` instead of `0xbb9e920d...`
+- **Auto-staking** - first request opens a session automatically
+- **Auto-renewal** - sessions renew before expiry
+- **Cookie auth** - handled automatically, retries on stale cookies
+- **OpenAI-compatible** - point any client at `localhost:8083`
 
-**mor-diem-sdk handles all of that** so you can just:
+Just:
 
 ```typescript
 const response = await sdk.complete('Hello')
