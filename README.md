@@ -200,6 +200,12 @@ Everything happens on **Base** (Coinbase L2, chain ID 8453).
 | **MOR** | Staking deposits | ~2 MOR per model | Refundable after 7 days |
 | **ETH** | Gas fees | ~$0.01 per tx | For approvals, session opens |
 
+**Getting MOR on Base:**
+- [Aerodrome](https://aerodrome.finance/swap?from=eth&to=0x7431aDa8a591C955a994a21710752EF9b882b8e3) - Main DEX on Base
+- [Uniswap](https://app.uniswap.org/swap?chain=base&outputCurrency=0x7431aDa8a591C955a994a21710752EF9b882b8e3) - Swap any token
+- MetaMask - Built-in swap feature (select Base network)
+- [Coinbase](https://www.coinbase.com/price/morpheus) - Buy directly, transfer to Base
+
 **MOR is NOT spent.** It's a refundable deposit:
 1. Lock MOR for 7 days
 2. Use unlimited inference
