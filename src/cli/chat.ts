@@ -9,6 +9,8 @@
  * - Memory management with auto-compaction
  */
 
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as readline from 'node:readline'
 import { type ChatMessage, MorpheusClient } from '../client/index.js'
 import {
@@ -17,6 +19,34 @@ import {
 	getBalances,
 	isValidMnemonic,
 } from '../wallet/wallet.js'
+
+// =============================================================================
+// Cookie Auth Helper
+// =============================================================================
+
+function getRouterAuthHeader(): string {
+	// Try cookie path from env, then local bin/morpheus, then home dir
+	const cookiePaths = [
+		process.env.MORPHEUS_COOKIE_PATH,
+		path.join(process.cwd(), 'bin', 'morpheus', '.cookie'),
+		path.join(process.env.HOME || '', '.morpheus', '.cookie'),
+	].filter(Boolean) as string[]
+
+	for (const cookiePath of cookiePaths) {
+		try {
+			if (fs.existsSync(cookiePath)) {
+				const cookie = fs.readFileSync(cookiePath, 'utf-8').trim()
+				return `Basic ${Buffer.from(cookie).toString('base64')}`
+			}
+		} catch {
+			// Try next path
+		}
+	}
+
+	// Fallback (won't work but better than crashing)
+	console.warn('[chat] No cookie file found - router auth may fail')
+	return ''
+}
 
 // =============================================================================
 // Types
@@ -335,8 +365,8 @@ const SLASH_COMMANDS: Record<string, SlashCommand> = {
 	budget: {
 		description: 'Show network compute budget',
 		handler: async () => {
-			const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:9081'
-			const authHeader = `Basic ${Buffer.from('admin:admin').toString('base64')}`
+			const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:8082'
+			const authHeader = getRouterAuthHeader()
 
 			console.log(`\n${c.cyan}Fetching network budget...${c.reset}`)
 
@@ -602,8 +632,8 @@ async function refreshWalletBalance(state: ChatState): Promise<void> {
 
 	const index = Number.parseInt(process.env.MOR_WALLET_INDEX || '0', 10)
 	const wallet = deriveWalletFromMnemonic(mnemonic, index)
-	const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:9081'
-	const authHeader = `Basic ${Buffer.from('admin:admin').toString('base64')}`
+	const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:8082'
+	const authHeader = getRouterAuthHeader()
 
 	console.log(`\n${c.cyan}Fetching wallet info...${c.reset}`)
 
@@ -719,8 +749,8 @@ async function showWalletMenu(rl: readline.Interface, state: ChatState): Promise
 		return
 	}
 
-	const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:9081'
-	const authHeader = `Basic ${Buffer.from('admin:admin').toString('base64')}`
+	const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:8082'
+	const authHeader = getRouterAuthHeader()
 
 	while (true) {
 		console.log(`\n${c.cyan}${c.bold}Wallet Menu${c.reset}\n`)
@@ -897,8 +927,8 @@ async function selectModel(
 		EndsAt: number
 	}
 
-	const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:9081'
-	const authHeader = `Basic ${Buffer.from('admin:admin').toString('base64')}`
+	const routerUrl = process.env.MORPHEUS_ROUTER_URL || 'http://localhost:8082'
+	const authHeader = getRouterAuthHeader()
 
 	// Fetch all models from router
 	let allModels: Array<{ name: string; id: string; tags: string; pricePerSecond: number }> = []
