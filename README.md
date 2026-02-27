@@ -195,6 +195,8 @@ Models vary by provider availability, latency, and capability. We don't have eno
 
 Everything happens on **Base** (Coinbase L2, chain ID 8453).
 
+> ⚠️ **Important:** MOR used to be on Arbitrum but moved to Base. Make sure your MOR and ETH are on the **Base network**, not Arbitrum or Ethereum mainnet.
+
 | Token | Used For | Amount | Notes |
 |-------|----------|--------|-------|
 | **MOR** | Staking deposits | ~2 MOR per model | Refundable after 7 days |
