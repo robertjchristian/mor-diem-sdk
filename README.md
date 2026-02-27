@@ -2,7 +2,7 @@
 <h2 align="center">mor-diem-sdk</h2>
 
 <p align="center">
-  <strong>Stake MOR tokens, get AI. That's it.</strong>
+  <strong>Stake MOR tokens, get AI.</strong>
 </p>
 
 <p align="center">

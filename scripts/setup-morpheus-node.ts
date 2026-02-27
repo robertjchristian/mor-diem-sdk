@@ -27,16 +27,19 @@ interface Release {
 	assets: Asset[]
 }
 
-function getPlatformAssetName(): string {
+function getPlatformAssetPattern(): RegExp {
 	const platform = process.platform
 	const arch = process.arch
 
+	// Asset names look like: mac-arm64-morpheus-router-5.14.0
 	if (platform === 'darwin') {
-		return arch === 'arm64' ? 'proxy-router-darwin-arm64' : 'proxy-router-darwin-amd64'
+		const macArch = arch === 'arm64' ? 'arm64' : 'x64'
+		return new RegExp(`mac-${macArch}-morpheus-router-`)
 	} else if (platform === 'linux') {
-		return arch === 'arm64' ? 'proxy-router-linux-arm64' : 'proxy-router-linux-amd64'
+		const linuxArch = arch === 'arm64' ? 'arm64' : 'x86_64'
+		return new RegExp(`linux-${linuxArch}-morpheus-router-`)
 	} else if (platform === 'win32') {
-		return 'proxy-router-windows-amd64.exe'
+		return /win-x64-morpheus-router-.*\.exe$/
 	}
 	throw new Error(`Unsupported platform: ${platform} ${arch}`)
 }
@@ -67,10 +70,11 @@ async function main() {
 	console.log(`   Found ${release.tag_name}`)
 
 	// Find matching asset
-	const assetName = getPlatformAssetName()
-	const asset = release.assets.find((a) => a.name === assetName)
+	const assetPattern = getPlatformAssetPattern()
+	const asset = release.assets.find((a) => assetPattern.test(a.name))
 	if (!asset) {
 		console.error(`\n❌ No binary found for ${process.platform} ${process.arch}`)
+		console.error(`   Looking for pattern: ${assetPattern}`)
 		console.error(`   Available assets: ${release.assets.map((a) => a.name).join(', ')}`)
 		console.error(`\n   Download manually from:`)
 		console.error(`   https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases\n`)
