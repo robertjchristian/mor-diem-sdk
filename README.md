@@ -19,17 +19,23 @@ Morpheus's node requires hex model IDs, manual session management, and cookie au
 const response = await sdk.complete('Hello')
 ```
 
-**This is NOT:**
-- The Morpheus gateway (api.mor.org) - that's pay-per-use USD
-- The Lumerin router - that's the heavy 56MB binary
-- A consumer node - that's Morpheus infrastructure
+**Two pieces you run locally:**
 
-**This IS:**
-- A drop-in OpenAI-compatible proxy
+| Piece | What | Port | Source |
+|-------|------|------|--------|
+| **mor-diem-sdk** | This repo. Proxy + wallet + CLI | 8083 | `bun run proxy` |
+| **Morpheus Node** | Lumerin's binary. Connects to P2P network | 9081 | [Download](https://github.com/MorpheusAIs/Morpheus-Lumerin-Node/releases) (~56MB) |
+
+You run **both** on your machine. The SDK talks to the Morpheus Node, which talks to the P2P network.
+
+**This SDK provides:**
+- OpenAI-compatible proxy (point any client at localhost:8083)
 - Auto session/staking management (open, renew, track expiry)
 - Wallet SDK (create, import, check balances, stake MOR)
 - Model discovery (list available models, check stake requirements)
 - CLI for setup and testing
+
+**Alternative:** Use [api.mor.org](https://api.mor.org) instead - pay USD, skip running anything locally.
 
 ### Why "diem"?
 
@@ -85,16 +91,11 @@ The CLI walks you through wallet setup. You need:
 
 ```mermaid
 flowchart TD
-    A[Your App] --> B[mor-diem-sdk proxy :8083]
-    B --> C[Morpheus Node :9081]
-    C --> D[AI Providers]
-
-    B -.- B1["• Converts 'kimi-k2.5' → hex model ID"]
-    B -.- B2["• Auto-opens staking sessions"]
-    B -.- B3["• Handles cookie auth"]
-
-    C -.- C1["• Connects to P2P network"]
-    C -.- C2["• Routes to providers"]
+    subgraph local["YOUR MACHINE"]
+        A[Your App] --> B["mor-diem-sdk proxy :8083"]
+        B --> C["Morpheus Node :9081<br/>(downloaded binary)"]
+    end
+    C --> D["P2P Network → AI Providers"]
 ```
 
 ## SDK Usage
