@@ -703,15 +703,19 @@ async function refreshWalletBalance(state: ChatState): Promise<void> {
 			// Ignore network errors
 		}
 
+		// Format number with commas
+		const fmt = (n: number, decimals = 2) => n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+
 		const content = [
 			`${c.dim}Address:${c.reset}     ${shortAddr}`,
 			'',
-			`${c.green}ETH${c.reset}          ${walletEth.toFixed(4)}`,
-			`${c.green}MOR${c.reset}          ${walletMor.toFixed(2)} ${c.dim}(in wallet)${c.reset}`,
-			`${c.yellow}Staked${c.reset}       ${stakedMor.toFixed(2)} ${c.dim}(${activeSessions.length} active sessions)${c.reset}`,
-			`${c.cyan}Total${c.reset}        ${totalMor.toFixed(2)} MOR`,
+			`${c.green}ETH${c.reset}          ${fmt(walletEth, 4)}`,
+			`${c.green}MOR${c.reset}          ${fmt(walletMor)} ${c.dim}(in wallet)${c.reset}`,
+			`${c.yellow}Staked${c.reset}       ${fmt(stakedMor)} ${c.dim}(${activeSessions.length} active sessions)${c.reset}`,
+			`${c.cyan}Total${c.reset}        ${fmt(totalMor)} MOR`,
 			'',
-			`${c.dim}Allowance:${c.reset}   ${balances.isUnlimitedAllowance ? `${c.red}Unlimited (BAD!)${c.reset}` : `${balances.morAllowanceFormatted} MOR`}`,
+			`${c.dim}Allowance:${c.reset}   ${balances.isUnlimitedAllowance ? `${c.red}Unlimited (BAD!)${c.reset}` : `${fmt(Number(balances.morAllowance) / 1e18)} MOR`}`,
+			`${c.dim}             ↳ pre-approved MOR for staking (ERC20 approval)${c.reset}`,
 		]
 
 		console.log(`\n${box('Wallet (Base Mainnet)', content)}`)
@@ -719,7 +723,7 @@ async function refreshWalletBalance(state: ChatState): Promise<void> {
 		// Show network stats
 		if (networkBudget > 0 || providerCount > 0) {
 			const networkContent = [
-				`${c.dim}Daily Budget:${c.reset}  ${networkBudget.toFixed(0)} MOR ${c.dim}(network total)${c.reset}`,
+				`${c.dim}Daily Budget:${c.reset}  ${Math.round(networkBudget).toLocaleString('en-US')} MOR ${c.dim}(network total)${c.reset}`,
 				`${c.dim}Providers:${c.reset}     ${providerCount} ${c.dim}active${c.reset}`,
 			]
 			console.log(`\n${box('Network', networkContent)}`)
