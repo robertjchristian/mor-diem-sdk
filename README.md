@@ -26,8 +26,24 @@ const response = await sdk.complete('Hello')
 
 **This IS:**
 - A drop-in OpenAI-compatible proxy
-- Auto session/staking management
-- Wallet tools and CLI
+- Auto session/staking management (open, renew, track expiry)
+- Wallet SDK (create, import, check balances, stake MOR)
+- Model discovery (list available models, check stake requirements)
+- CLI for setup and testing
+
+### Why "diem"?
+
+Not related to [Venice Diem](https://venice.ai), but inspired by the concept. Both are "stake to get inference" - you lock tokens for a period, get AI access, then get your tokens back.
+
+| | Venice Diem | Morpheus (this SDK) |
+|--|-------------|---------------------|
+| **Stake model** | 1 diem = $1 of spend | Stake per model, per session |
+| **Duration** | Burn as you use | Fixed period (up to 7 days) |
+| **Access** | Concurrent, rate-limited | Single-lane 24/7 access |
+| **Model costs** | Abstracted (diem absorbs differences) | Per-model staking |
+| **Speed** | Could burn all diem in 5 seconds | Steady access for the period |
+
+We liked the "diem" concept: stake → access → refund. Morpheus works differently, but the core idea is the same.
 
 ## Gotchas we handle
 
