@@ -9,6 +9,10 @@
   <img src="assets/mor-diem.png" alt="mor-diem-sdk" width="600">
 </p>
 
+<p align="center">
+  <img src="assets/screenshots/wallet-status.png" alt="Wallet status showing 50 active sessions" width="500">
+</p>
+
 ## Why this exists
 
 Morpheus AI has a ~24,000 MOR daily budget but only 3 active providers. Why? **Because it's insanely hard to get working.**
@@ -97,6 +101,10 @@ bun run chat
 **That's it.** The CLI walks you through model selection. You need:
 - ETH on Base (for gas, ~$0.01)
 - MOR tokens (for staking, ~2 MOR per model, refundable after 7 days)
+
+<p align="center">
+  <img src="assets/screenshots/start-chat.png" alt="Model selection showing 37 available models" width="400">
+</p>
 
 **What `bun run start` does:**
 1. Starts Morpheus Node (background, creates cookie)
@@ -191,6 +199,12 @@ Everything happens on **Base** (Coinbase L2, chain ID 8453).
 1. Lock MOR for 7 days
 2. Use unlimited inference
 3. MOR returns to your wallet
+
+<p align="center">
+  <img src="assets/screenshots/active-stakes.png" alt="50 active staking sessions sorted by expiry" width="400">
+  <br>
+  <em>50 active sessions, sorted by time remaining</em>
+</p>
 
 **Contract addresses (Base):**
 - MOR Token: `0x7431aDa8a591C955a994a21710752EF9b882b8e3`
