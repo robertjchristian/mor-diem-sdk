@@ -762,6 +762,9 @@ async function showWalletMenu(rl: readline.Interface, state: ChatState): Promise
 		console.log(
 			`  ${c.dim}4.${c.reset} ${c.green}Approve${c.reset}     - Approve 10k MOR for staking`,
 		)
+		console.log(
+			`  ${c.dim}5.${c.reset} ${c.green}Renew${c.reset}       - Renew expiring sessions`,
+		)
 		console.log('')
 		console.log(`  ${c.dim}0.${c.reset} Back`)
 		console.log()
@@ -853,6 +856,204 @@ async function showWalletMenu(rl: readline.Interface, state: ChatState): Promise
 				} catch (e) {
 					console.log(
 						`\n${c.red}Approval failed: ${e instanceof Error ? e.message : String(e)}${c.reset}`,
+					)
+				}
+				break
+
+			case 5:
+				// Renew sessions
+				console.log(`\n${c.cyan}Fetching sessions and current prices...${c.reset}`)
+				try {
+					// Get active sessions
+					const sessionsResp = await fetch(`${routerUrl}/blockchain/sessions`, {
+						headers: { Authorization: authHeader },
+					})
+					if (!sessionsResp.ok) throw new Error('Could not fetch sessions')
+
+					const sessionsData = (await sessionsResp.json()) as {
+						sessions: Array<{
+							Id: string
+							ModelAgentId: string
+							EndsAt: number
+							Stake: string
+						}>
+					}
+
+					const now = Date.now() / 1000
+					const activeSessions = sessionsData.sessions.filter((s) => s.EndsAt > now)
+
+					if (activeSessions.length === 0) {
+						console.log(`\n${c.yellow}No active sessions to renew.${c.reset}`)
+						break
+					}
+
+					// Get model names
+					const modelsResp = await fetch(`${routerUrl}/blockchain/models`, {
+						headers: { Authorization: authHeader },
+					})
+					const modelsData = (await modelsResp.json()) as {
+						models: Array<{ Id: string; Name: string }>
+					}
+					const modelMap: Record<string, string> = {}
+					for (const m of modelsData.models || []) {
+						modelMap[m.Id] = m.Name
+					}
+
+					// Get current bids for each model to show price comparison
+					const sessionInfo: Array<{
+						session: (typeof activeSessions)[0]
+						modelName: string
+						currentStake: number
+						currentBid: number | null
+						remaining: string
+						priceChange: string
+					}> = []
+
+					for (const s of activeSessions) {
+						const modelName = modelMap[s.ModelAgentId] || s.ModelAgentId?.slice(0, 12) || 'unknown'
+						const currentStake = Number(s.Stake) / 1e18
+						const remaining = Math.max(0, s.EndsAt - now)
+						const days = Math.floor(remaining / 86400)
+						const hours = Math.floor((remaining % 86400) / 3600)
+
+						// Try to get current bid price
+						let currentBid: number | null = null
+						let priceChange = ''
+						try {
+							const bidResp = await fetch(
+								`${routerUrl}/blockchain/models/${s.ModelAgentId}/bids?limit=1`,
+								{ headers: { Authorization: authHeader } },
+							)
+							if (bidResp.ok) {
+								const bidData = (await bidResp.json()) as {
+									bids: Array<{ PricePerSecond: string }>
+								}
+								if (bidData.bids?.[0]) {
+									const pricePerSec = Number(bidData.bids[0].PricePerSecond) / 1e18
+									currentBid = pricePerSec * 86400 * 7 // 7 day session
+									const diff = ((currentBid - currentStake) / currentStake) * 100
+									if (diff > 5) {
+										priceChange = `${c.red}+${diff.toFixed(0)}%${c.reset}`
+									} else if (diff < -5) {
+										priceChange = `${c.green}${diff.toFixed(0)}%${c.reset}`
+									} else {
+										priceChange = `${c.dim}~same${c.reset}`
+									}
+								}
+							}
+						} catch {
+							// Ignore bid fetch errors
+						}
+
+						sessionInfo.push({
+							session: s,
+							modelName,
+							currentStake,
+							currentBid,
+							remaining: `${days}d ${hours}h`,
+							priceChange,
+						})
+					}
+
+					// Sort by time remaining (soonest first)
+					sessionInfo.sort((a, b) => {
+						const aRemaining = a.session.EndsAt - now
+						const bRemaining = b.session.EndsAt - now
+						return aRemaining - bRemaining
+					})
+
+					// Display sessions
+					console.log(`\n${c.cyan}${c.bold}Sessions (${sessionInfo.length})${c.reset}\n`)
+					console.log(`${c.dim}  #   Expires   Staked    Current   Change    Model${c.reset}`)
+					console.log(`${c.dim}  ${'─'.repeat(65)}${c.reset}`)
+
+					for (let i = 0; i < sessionInfo.length; i++) {
+						const s = sessionInfo[i]
+						const currentBidStr = s.currentBid ? s.currentBid.toFixed(2) : '?'
+						console.log(
+							`  ${c.dim}${String(i + 1).padStart(2)}.${c.reset} ` +
+								`${s.remaining.padEnd(8)}  ` +
+								`${c.yellow}${s.currentStake.toFixed(2).padStart(6)}${c.reset}    ` +
+								`${currentBidStr.padStart(6)}    ` +
+								`${s.priceChange.padEnd(12)}  ` +
+								`${c.green}${s.modelName}${c.reset}`,
+						)
+					}
+
+					console.log(`\n${c.dim}Enter numbers to renew (e.g., "1,3,5" or "all"), or 0 to cancel:${c.reset}`)
+					const renewChoice = await question(`${c.cyan}Renew${c.reset}: `)
+
+					if (renewChoice.trim() === '0' || renewChoice.trim() === '') {
+						console.log(`${c.dim}Cancelled.${c.reset}`)
+						break
+					}
+
+					let toRenew: number[] = []
+					if (renewChoice.trim().toLowerCase() === 'all') {
+						toRenew = sessionInfo.map((_, i) => i)
+					} else {
+						toRenew = renewChoice
+							.split(',')
+							.map((n) => Number.parseInt(n.trim(), 10) - 1)
+							.filter((n) => n >= 0 && n < sessionInfo.length)
+					}
+
+					if (toRenew.length === 0) {
+						console.log(`${c.yellow}No valid sessions selected.${c.reset}`)
+						break
+					}
+
+					// Calculate total cost
+					let totalCost = 0
+					for (const idx of toRenew) {
+						const s = sessionInfo[idx]
+						totalCost += s.currentBid ?? s.currentStake
+					}
+
+					console.log(`\n${c.cyan}Renewing ${toRenew.length} session(s)${c.reset}`)
+					console.log(`${c.dim}Estimated cost:${c.reset} ${c.yellow}~${totalCost.toFixed(2)} MOR${c.reset}`)
+
+					const confirm = await question(`${c.cyan}Confirm? (y/n)${c.reset}: `)
+					if (confirm.trim().toLowerCase() !== 'y') {
+						console.log(`${c.dim}Cancelled.${c.reset}`)
+						break
+					}
+
+					// Renew each session
+					let renewed = 0
+					for (const idx of toRenew) {
+						const s = sessionInfo[idx]
+						console.log(`${c.dim}Renewing ${s.modelName}...${c.reset}`)
+
+						try {
+							const renewResp = await fetch(
+								`${routerUrl}/blockchain/models/${s.session.ModelAgentId}/session`,
+								{
+									method: 'POST',
+									headers: { Authorization: authHeader },
+								},
+							)
+
+							if (renewResp.ok) {
+								renewed++
+								console.log(`  ${c.green}✓${c.reset} ${s.modelName}`)
+							} else {
+								const err = await renewResp.json().catch(() => ({}))
+								console.log(
+									`  ${c.red}✗${c.reset} ${s.modelName}: ${(err as { error?: string }).error || 'failed'}`,
+								)
+							}
+						} catch (e) {
+							console.log(
+								`  ${c.red}✗${c.reset} ${s.modelName}: ${e instanceof Error ? e.message : 'error'}`,
+							)
+						}
+					}
+
+					console.log(`\n${c.green}Renewed ${renewed}/${toRenew.length} sessions.${c.reset}`)
+				} catch (e) {
+					console.log(
+						`\n${c.red}Error: ${e instanceof Error ? e.message : String(e)}${c.reset}`,
 					)
 				}
 				break
